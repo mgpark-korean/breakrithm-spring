@@ -1,0 +1,31 @@
+apply plugin: "org.springframework.boot"
+apply plugin: "io.spring.dependency-management"
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2023.0.1"
+    }
+}
+
+jar {
+    enabled = false
+}
+
+
+dependencies {
+    // spring
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    // https://mvnrepository.com/artifact/org.modelmapper/modelmapper
+    implementation 'org.modelmapper:modelmapper:3.2.0'
+
+
+    // ============================== test ==============================
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    // ============================== test ==============================
+
+}
+
+tasks.named("processResources") { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }

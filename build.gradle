@@ -1,0 +1,51 @@
+buildscript {
+    project.ext.set("springVersion", "3.3.0")
+    project.ext.set("springPlugin", "1.1.5")
+
+
+    repositories {
+        // for quality
+        gradlePluginPortal()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        // lombok
+        classpath "io.franzbecker:gradle-lombok:5.0.0"
+        // ascii doctor
+        classpath "org.asciidoctor:asciidoctor-gradle-jvm:4.0.2"
+        // spring boot
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springVersion}"
+        classpath "io.spring.gradle:dependency-management-plugin:${springPlugin}"
+
+        // query dsl
+        classpath "gradle.plugin.com.ewerk.gradle.plugins:querydsl-plugin:1.0.10"
+    }
+}
+
+allprojects {
+
+    group 'io.bk.spring'
+    version '1.0'
+
+    repositories {
+        mavenLocal()    // maven local cache repository
+        mavenCentral()
+        google()
+        maven { url "https://repo.spring.io/snapshot" }
+        maven { url "https://repo.spring.io/milestone" }
+        maven { url "https://repo1.maven.org/maven2/" }
+    }
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+    }
+    tasks.withType(org.gradle.jvm.tasks.Jar) {
+        duplicatesStrategy = 'include'
+    }
+}
+
+subprojects {
+    apply from: "${project.getRootDir()}/gradle/ext/common.gradle"
+    apply from: "${project.getRootDir()}/gradle/ext/test.gradle"
+}

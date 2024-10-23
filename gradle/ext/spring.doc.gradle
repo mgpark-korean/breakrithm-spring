@@ -1,0 +1,81 @@
+apply plugin: "org.asciidoctor.jvm.convert"
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+    asciidoctorExtensions
+    jsondoclet
+}
+ext {
+    snippetsDir = file("$buildDir/generated-snippets") // snippet 이 생성될 디렉토리 지정
+    javadocJsonDir = file("$buildDir/generated-javadoc-json") // javadoc-json 이 생성될 디렉토리 지정
+}
+
+dependencies {
+    // https://subji.github.io/posts/2021/01/06/springrestdocsexample
+    // build/generated-snippets 에 생긴 .adoc 조각들을 프로젝트
+    // 내의 .adoc 파일에서 읽어들일 수 있도록 연동해줍니다.
+    // 이 덕분에 .adoc 파일에서 operation 같은 매크로를 사용하여 스니펫 조각들을 연동할 수 있는 것입니다.
+    // 그리고 최종적으로 .adoc 파일을 HTML로 만들어 export 해줍니다.
+
+    // auto restdoc
+    testImplementation 'capital.scalable:spring-auto-restdocs-core:2.0.11'
+    jsondoclet 'capital.scalable:spring-auto-restdocs-json-doclet-jdk9:2.0.11'
+    // MockMvc 대신 REST Assured를 사용하려면 spring-restdocs-restassured 를 추가
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+}
+
+// Java Source 코드에서 Javadoc 을 읽고, json 파일로 반환
+task jsonDoclet(type: Javadoc, dependsOn: compileJava) {
+    source = sourceSets.main.allJava
+    classpath = sourceSets.main.compileClasspath
+    destinationDir = javadocJsonDir
+    options.docletpath = configurations.jsondoclet.files.asType(List)
+    options.doclet = 'capital.scalable.restdocs.jsondoclet.ExtractDocumentationAsJsonDoclet'
+    options.memberLevel = JavadocMemberLevel.PACKAGE
+}
+
+// 테스트 실행 후, snipperDir에 snippet(.adoc 파일들) 생성
+test {
+    systemProperty 'org.springframework.restdocs.outputDir', snippetsDir
+    systemProperty 'org.springframework.restdocs.javadocJsonDir', javadocJsonDir
+
+    dependsOn jsonDoclet
+    useJUnitPlatform()
+//    finalizedBy 'asciidoctor'
+}
+
+// src/docs/asciidoc/*.adoc 파일을 build/docs/asciidoc에 *.html 파일로 변환
+asciidoctor {
+//    inProcess = JAVA_EXEC
+//    forkOptions {
+//        jvmArgs("--add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED")
+//    }
+    inputs.dir snippetsDir
+    dependsOn test
+
+    // source가 없으면 .adoc파일을 전부 html로 만들어버림
+    // source 지정시 특정 adoc만 HTML로 만든다.
+//    sources{
+//        include("**/index.adoc","**/common/*.adoc")
+//    }
+
+    // 특정 .adoc에 다른 adoc 파일을 가져와서(include) 사용하고 싶을 경우 경로를 baseDir로 맞춰주는 설정입니다.
+    // 개별 adoc으로 운영한다면 필요 없는 옵션입니다.
+//    baseDirFollowsSourceFile()
+}
+
+// 참고사항
+// 공식 문서에서는 위의 ascidoctor.doFirst부터 아래 내용은 없고 이와 같은 내용만 있습니다.
+// 이렇게 하면 jar로 만들어 질때 옮겨지는 것으로 IDE로 돌릴 때는 build 폴더에서만 확인이 가능합니다.
+// 위 방법을 사용하면 IDE에서도 static으로 옮겨진 것을 확인할 수 있습니다.
+// 위에 방법을 사용하든 아래 방법을 사용하든 편한 선택지를 사용하시면 됩니다.
+bootJar {
+    dependsOn asciidoctor
+//    copy {
+//        from "${asciidoctor.outputDir}"
+//        into 'BOOT-INF/classes/static/docs'
+//    }
+}
+// ============================== end rest doc ==============================

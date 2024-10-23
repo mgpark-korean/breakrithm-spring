@@ -1,0 +1,62 @@
+rootProject.name = 'breakrithm-spring'
+[
+        "spring-batch:tasklet",
+        "spring-batch:chunk",
+        "spring-batch:db-shared",
+].each {
+    def projectNameArr = it.split(":")
+
+    def prefixName = projectNameArr[0]
+    def projectName = projectNameArr[1]
+    def dir = makeDir(rootDir, prefixName)
+    def subDir = makeDir(dir, projectName)
+    intiProjectFolder(subDir, it);
+}
+
+def intiProjectFolder(dir, projectFullName) {
+    // add .gitigrore file
+    def gitFile = new File(dir.absolutePath, ".gitignore")
+    if (!gitFile.exists()) {
+        gitFile.append("build/")
+        gitFile.append("\nout/")
+        gitFile.append("\ngenerated/")
+    }
+
+    def gradleFile = new File(dir.absolutePath, "build.gradle")
+    if (!gradleFile.exists()) {
+        gradleFile.text =
+                """
+
+                    dependencies {
+
+                    }
+
+                    """.stripIndent(20)
+    }
+    [
+            "src/main/java/io/bk/spring",
+            "src/main/resources",
+            "src/test/java/io/bk/spring",
+            "src/test/resources"
+
+    ].each { srcDir ->
+        def srcFolder = new File(dir.absolutePath, srcDir)
+        if (!srcFolder.exists()) {
+            srcFolder.mkdirs()
+        }
+    }
+    def projectName = ":${projectFullName}"
+
+    include projectName
+    project(projectName).projectDir = dir
+}
+
+
+def makeDir(attachedDir, name) {
+    def dir = new File(attachedDir, name)
+    if (!dir.exists()) {
+        dir.mkdirs()
+    }
+    return dir;
+}
+
