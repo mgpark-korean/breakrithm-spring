@@ -3,6 +3,7 @@ rootProject.name = 'breakrithm-spring'
         "spring-batch:tasklet",
         "spring-batch:chunk",
         "spring-batch:db-shared",
+        "spring-batch:restart",
 ].each {
     def projectNameArr = it.split(":")
 
