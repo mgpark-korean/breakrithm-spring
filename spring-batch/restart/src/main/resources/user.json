@@ -1,5 +1,11 @@
 [
     {
+        "name": "mgpark",
+        "email": "david.taylor@example.com",
+        "age": "34a",
+        "city": "San Francisco"
+    },
+    {
         "name": "John Doe",
         "email": "john.doe@example.com",
         "age": 30,
@@ -30,10 +36,10 @@
         "city": "Phoenix"
     },
     {
-        "name": "David Taylor",
-        "email": "david.taylor@example.com",
-        "age": 34,
-        "city": "San Francisco"
+        "name": "Charlie Wilson",
+        "email": "charlie.wilson@example.com",
+        "age": 27,
+        "city": "Error"
     },
     {
         "name": "Emma Davis",

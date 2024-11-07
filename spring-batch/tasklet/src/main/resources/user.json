@@ -18,6 +18,11 @@
         "city": "Chicago"
     },
     {
+        "name": "Bob Johnson",
+        "email": "bob.johnson@example.com",
+        "age": 35
+    },
+    {
         "name": "Alice Brown",
         "email": "alice.brown@example.com",
         "age": 32,
